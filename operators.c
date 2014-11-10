@@ -2,7 +2,7 @@
 
 #define N_OPERATIONS 4
 
-struct operation {
+struct operator {
 	const char *name;
 	struct sexpr *(*operation_cb)(struct sexpr *operands, int n_operands);
 };
