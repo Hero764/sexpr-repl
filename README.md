@@ -3,10 +3,10 @@ SEXPR REPL
 
 A repl(read-eval-print loop) in the domain of sexprs. An sexpr is one of the following:
 
--integer
--floating point
--atom
--string
+* integer
+* floating point
+* atom
+* string
 
 Current features
 ----------------
