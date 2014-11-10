@@ -1,0 +1,23 @@
+operations:
+
++, -, *, /, =, ==, >, <, >=, <=
+
+read:
+
+read a line of input:
+
+-if no parenthesis, simply print the sexprs. for an atom, resolve the name.
+-if parenthesis, then evaluate and print the result. possible recursion if another parenthesis is encountered.
+	- to support a variable number of operands, a pointer to an array of operands will be passed to each operator function
+	- every operation takes sexprs and returns a sexpr so we can represent sexprs with a struct
+	- for each operation we need an array of sexpr structs
+	- we grab a token and make a sexpr out of it. if it's a left parenthesis then we need to recurse
+
+one way to do it is to tokenize all of the input, make an array of tokens, and then iterate through it.
+
+1. encounter left parenthesis
+2. 
+
+operation struct
+	char *operation
+	struct sexpr *operands[MAX_OPERANDS]; 
