@@ -20,7 +20,10 @@ union value {
 
 struct sexpr {
 	int tag;
-	union value value;
+	union value val;
 };
+
+int get_string(struct sexpr *s, char *buf, int n);
+struct sexpr *new_sexpr(int token_type, char *token_buf);
 
 #endif

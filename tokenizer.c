@@ -106,22 +106,13 @@ static int get_string(char *bufp, char *token_buf, int n)
 	return len;
 }	
 
-/* Returns an integer corresponding to the type of token retrieved, 0 when there is no more input, or -1 on error 
- * To reuse a buffer, pass in NULL for the input parameter. */
+/* Returns an integer corresponding to the type of token retrieved, 0 when there is no more input, or -1 on error */
 
-int tokenize(char *input, char *token_buf, int n)
+int get_token(char *buffer, char *token_buf, int n, int *retpos)
 {
-	static char buffer[2048];
-	static int buffer_len;
-	static int pos = 0;
+	int pos = 0;
 
 	int rv, number_type;
-
-	if (input != NULL) {
-		strncpy(buffer, input, 2048);
-		buffer_len = strlen(buffer);
-		pos = 0;
-	}
 
 	while (isspace(buffer[pos])) pos++;
 
@@ -129,15 +120,17 @@ int tokenize(char *input, char *token_buf, int n)
 		return 0;
 	
 	if ((buffer[pos] == '+') || (buffer[pos] == '-')) {
-		if ((buffer[pos+1] == '.') || (isdigit(buffer[pos+1])))
-			if ((rv = get_number(&buffer[pos], token_buf, n, &number_type)) < 0) {
+		if ((buffer[pos+1] == '.') || (isdigit(buffer[pos+1]))) {
+			if ((rv = get_number(&buffer[pos], token_buf, n, &number_type)) < 0)
 			       return -1;	
 			pos += rv;
+			*retpos += pos;
 			return number_type;
 		} else {
 			if ((rv = get_atom(&buffer[pos], token_buf, n)) < 0)
 				return -1;
 			pos += rv;
+			*retpos += pos;
 			return TOKEN_ATOM;
 		}
 
@@ -145,12 +138,14 @@ int tokenize(char *input, char *token_buf, int n)
 		if ((rv = get_number(&buffer[pos], token_buf, n, &number_type)) < 0)
 			return -1;
 		pos += rv;
+		*retpos += pos;
 		return number_type;
 		
 	} else if (buffer[pos] == '\"') {
 		if ((rv = get_string(&buffer[pos], token_buf, n)) < 0)
 			return -1;
 		pos += rv;
+		*retpos += pos;
 		return TOKEN_STRING;
 
 	} else if (buffer[pos] == '.') {
@@ -158,40 +153,47 @@ int tokenize(char *input, char *token_buf, int n)
 			if ((rv = get_number(&buffer[pos], token_buf, n, &number_type)) < 0)
 				return -1;
 			pos += rv;
+			*retpos += pos;
 			return number_type;
 		}
 	
-		pos++;	
+		pos++;
+		*retpos += pos;
 		return TOKEN_DOT;
 
 	} else if (buffer[pos] == '(') {
 		token_buf[0] = '(';
 		token_buf[1] = '\0';
 		pos++;
+		*retpos += pos;
 		return TOKEN_LEFTP;
 	
 	} else if (buffer[pos] == ')') {
 		token_buf[0] = ')';
 		token_buf[1] = '\0';
 		pos++;
+		*retpos += pos;
 		return TOKEN_RIGHTP;
 	
 	} else if (buffer[pos] == '[') {
 		token_buf[0] = '[';
 		token_buf[1] = '\0';
 		pos++;
+		*retpos += pos;
 		return TOKEN_LEFTB;
 	
 	} else if (buffer[pos] == ']') {
 		token_buf[0] = ']';
 		token_buf[1] = '\0';
 		pos++;
+		*retpos += pos;
 		return TOKEN_RIGHTB;
 
 	} else {
 		if ((rv = get_atom(&buffer[pos], token_buf, n)) < 0)
 			return -1;
 		pos += rv;
+		*retpos += pos;
 		return TOKEN_ATOM;
 	}
 }		

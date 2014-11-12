@@ -11,6 +11,6 @@
 #define TOKEN_RIGHTB 8
 #define TOKEN_DOT    9
 
-int tokenize(char *input, char *token, int n);
+int get_token(char *input, char *token, int n, int *retpos);
 
 #endif

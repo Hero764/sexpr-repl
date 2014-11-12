@@ -3,7 +3,7 @@
 
 #include "sexpr.h"
 
-int assign_name(struct name n, struct sexpr* v);
-struct sexpr *resolve_name(struct name n);
+void assign_name(char *n, struct sexpr* v);
+struct sexpr *resolve_name(char *n);
 
 #endif
