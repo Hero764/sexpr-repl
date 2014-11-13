@@ -74,8 +74,8 @@ struct sexpr *eval_op(char *input, int *retpos)
 		} else if ((operand = new_sexpr(rv, token_buf)) == NULL) {
 			printf("[ERROR] Could not create sexpr from: %s\n", token_buf);
 			return NULL;
-		}
-		
+		}	
+	
 		/* add to operation's array of operands */
 		op.operands[op.n_operands++] = operand;
 	}
@@ -86,7 +86,8 @@ struct sexpr *eval_op(char *input, int *retpos)
 	/* free operands */
 	for (i = 0; i < op.n_operands ; i++)
 		free_sexpr(op.operands[i]);
-
-	*retpos += pos;
+	
+	if (result)
+		*retpos += pos;
 	return result;
 }
