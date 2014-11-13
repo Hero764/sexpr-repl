@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include <string.h>
 
 #include "sexpr.h"
@@ -26,18 +27,19 @@ void assign_name(char *n, struct sexpr *v)
 
 static struct sexpr *get_value(struct name *name)
 {
-	struct sexpr *result;
+	struct sexpr *v;
 
 	if (name->expr->tag == TAG_NAME)
-		result = get_value(name->expr->val.sexpr_name);
+		v = get_value(name->expr->val.sexpr_name);
 	else
-		result = name->expr;
+		v = name->expr;
 
-	return result;
+	return v;
 }
 
 struct sexpr *resolve_name(char *n)
 {
+	struct sexpr *result, *v;
 	int i;
 
 	for (i = 0; i < n_names; i++) {
@@ -48,5 +50,20 @@ struct sexpr *resolve_name(char *n)
 	if (i == n_names) /* name not found */
 		return NULL;	
 
-	return get_value(&names[i]);
-}	
+	result = malloc(sizeof(struct sexpr));
+
+	v =  get_value(&names[i]);
+
+	result->tag = v->tag;
+	result->val = v->val;
+
+	return result;
+}
+
+void free_names()
+{
+	int i;
+
+	for (i = 0; i < n_names; i++)
+		free_sexpr(names[i].expr);
+}

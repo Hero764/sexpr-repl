@@ -1,7 +1,9 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include "sexpr.h"
+#include "tokenizer.h"
 
 struct sexpr *new_sexpr(int token_type, char *token_buf)
 {
@@ -10,8 +12,20 @@ struct sexpr *new_sexpr(int token_type, char *token_buf)
 	switch(token_type) {
 	case TOKEN_INT:
 		s->tag = TAG_INT;
+		s->val.sexpr_int = atol(token_buf);
+		break;
+	case TOKEN_FLOAT:
+		s->tag = TAG_FLOAT;
+		s->val.sexpr_float = atof(token_buf);
+		break;
+	case TOKEN_STRING:
+		s->tag = TAG_STRING;
+		s->val.sexpr_string = malloc(100);
+		strncpy(s->val.sexpr_string, token_buf, 100);
+		break;
+	}
 
-
+	return s;
 }
 
 int get_string(struct sexpr *s, char *buf, int n)
@@ -31,4 +45,11 @@ int get_string(struct sexpr *s, char *buf, int n)
 	}
 	
 	return 0;
+}
+
+void free_sexpr(struct sexpr *s)
+{
+	if (s->tag == TAG_STRING)
+		free(s->val.sexpr_string);
+	free(s);
 }

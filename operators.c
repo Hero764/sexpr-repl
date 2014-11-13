@@ -1,23 +1,24 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "sexpr.h"
 #include "operators.h"
 #include "tokenizer.h"
+#include "names.h"
 
+/* built-in operator functions */
+#include "arithmetic.h"
 
-#define N_OPERATIONS 4
-
-struct sexpr *add_op(struct sexpr *operands, int n_operands);
-struct sexpr *sub_op(struct sexpr *operands, int n_operands);
-struct sexpr *mul_op(struct sexpr *operands, int n_operands);
-struct sexpr *div_op(struct sexpr *operands, int n_operands);
+#define N_OPERATIONS 5
 
 struct operator operators[] = {
-       					   {.name = "+", .operation_cb = add_op},
-					   {.name = "-", .operation_cb = NULL},
-					   {.name = "*", .operation_cb = NULL},
-					   {.name = "/", .operation_cb = NULL}
+					   /* arithmetic.h */
+       					   {.name = "+", .callback = add_op},
+					   {.name = "-", .callback = sub_op},
+					   {.name = "*", .callback = mul_op},
+					   {.name = "/", .callback = div_op},
+					   {.name = "%", .callback = mod_op}
 };
 
 struct operator *get_op(char *op_name)
@@ -35,9 +36,9 @@ struct operator *get_op(char *op_name)
 struct sexpr *eval_op(char *input, int *retpos)
 {
 	struct operation op;
-	struct sexpr *operand;
+	struct sexpr *operand, *result;
 	char token_buf[20];
-	int rv, pos = 0;
+	int i, rv, pos = 0;
 	
 	op.n_operands = 0;
 
@@ -61,7 +62,7 @@ struct sexpr *eval_op(char *input, int *retpos)
 		}	
 		
 		if (rv == TOKEN_ATOM) {
-			if ((operand = resolve_name(token_buf)) = NULL) {
+			if ((operand = resolve_name(token_buf)) == NULL) {
 				printf("[ERROR] Could not resolve: %s\n", token_buf);
 				return NULL;
 			}
@@ -70,37 +71,22 @@ struct sexpr *eval_op(char *input, int *retpos)
 			if ((operand = eval_op(input+pos, &pos)) == NULL)
 				return NULL;
 		
-		} else if ((operand = new_sexpr(rv, token_buf)) = NULL) {
+		} else if ((operand = new_sexpr(rv, token_buf)) == NULL) {
 			printf("[ERROR] Could not create sexpr from: %s\n", token_buf);
 			return NULL;
 		}
 		
 		/* add to operation's array of operands */
-		op.operands[n_operands++] = operand;	
+		op.operands[op.n_operands++] = operand;
 	}
 	
 	/* evaluate */
-	return perform_operation(op);
-}
+	result = op.operator->callback(op.operands, op.n_operands);
 
-struct sexpr *add_op(struct sexpr *operands, int n_operands)
-{
-	int i, use_double = 0;
-	int i_sum = 0;
-	double d_sum;
-	struct sexpr *result = malloc(sizeof(struct sexpr));
+	/* free operands */
+	for (i = 0; i < op.n_operands ; i++)
+		free_sexpr(op.operands[i]);
 
-	for (i = 0; i < n_operands; i++) {
-		if (operands[i].tag == TAG_FLOAT) {
-			use_double = 1;
-			d_sum = (double) i_sum;
-
-		} else if ((operands[i].tag != TAG_INT) && (operands[i].tag != TAG_FLOAT)) {
-			fprintf(stderr, "[ERROR] '+' takes numeric operands only.\n");
-			return NULL;
-		}
-
-	}
-
+	*retpos += pos;
 	return result;
 }

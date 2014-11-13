@@ -5,15 +5,15 @@
 
 struct operator {
 	const char *name;
-	struct sexpr *(*operation_cb)(struct sexpr *operands, int n_operands);
+	struct sexpr *(*callback)(struct sexpr *operands[], int n_operands);
 };
 
 struct operation {
 	struct operator *operator;
 	int n_operands;
-	struct sexpr operands[MAX_OPERANDS];
+	struct sexpr *operands[MAX_OPERANDS];
 };
 
-int eval_op(char *input, char *output, int n, int *pos);
+struct sexpr *eval_op(char *input, int *pos);
 
 #endif

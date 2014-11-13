@@ -20,3 +20,29 @@ Current features
 * left or right parenthesis
 * left or right bracket
 * dot
+
+Builtin Operators
+-----------------
+
+*arithmetic*
+* addition ('+')
+* subtraction ('-')
+* multiplication ('\*')
+* division ('/')
+* modulo ('%')
+* increment ('++')
+* decrement ('--')
+* negative ('-')
+
+*comparison*
+* greater than ('>')
+* greater than or equal to ('>=')
+* less than ('<')
+* less than or equal to ('<=')
+* equal to ('=')
+* not equal to ('!=')
+
+*logical*
+* and ('and')
+* or ('or')
+* not ('not')

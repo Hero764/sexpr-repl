@@ -42,7 +42,7 @@ void print_result(char *line)
 				break;
 			}
 
-			if (get_string(s, repr_buf 100) < 0) {
+			if (get_string(s, repr_buf, 100) < 0) {
 				printf("Error reading sexpr tag\n");
 				break;
 			}
@@ -56,14 +56,19 @@ void print_result(char *line)
 	}
 }
 
-int main (int argc, char **argv)
+int main(int argc, char **argv)
 {
 	char line[1024];
 
 	printf("Welcome to Hero's REPL v 0.1\n");
+	printf(">> ");
 
-	while (fgets(line, 1024, stdin) != NULL)
+	while (fgets(line, 1024, stdin) != NULL) {
 		print_result(line);
+		printf(">> ");
+	}
 
+	putchar('\n');	
+	free_names();
 	return 0;
 }

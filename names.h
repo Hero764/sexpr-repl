@@ -5,5 +5,6 @@
 
 void assign_name(char *n, struct sexpr* v);
 struct sexpr *resolve_name(char *n);
+void free_names();
 
 #endif
