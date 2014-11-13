@@ -107,6 +107,7 @@ int main(int argc, char **argv)
 			print_result(input);
 
 			p_state = 0;
+			input[0] = '\0';
 			printf(">> ");
 
 		} else if (p_state < 0) { /* you fucked up */
