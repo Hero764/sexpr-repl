@@ -10,6 +10,7 @@
 #define TOKEN_LEFTB  7
 #define TOKEN_RIGHTB 8
 #define TOKEN_DOT    9
+#define TOKEN_BOOL   10
 
 int get_token(char *input, char *token, int n, int *retpos);
 

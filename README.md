@@ -30,8 +30,6 @@ Builtin Operators
 * multiplication ('\*')
 * division ('/')
 * modulo ('%')
-* increment ('++')
-* decrement ('--')
 * negative ('-')
 
 *comparison*

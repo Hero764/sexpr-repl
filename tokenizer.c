@@ -119,13 +119,14 @@ int get_token(char *buffer, char *token_buf, int n, int *retpos)
 	if (buffer[pos] == '\0') 
 		return 0;
 	
-	if ((buffer[pos] == '+') || (buffer[pos] == '-')) {
+	if ((buffer[pos] == '+') || (buffer[pos] == '-')) { /* number with sign prefix or atom */
 		if ((buffer[pos+1] == '.') || (isdigit(buffer[pos+1]))) {
 			if ((rv = get_number(&buffer[pos], token_buf, n, &number_type)) < 0)
 			       return -1;	
 			pos += rv;
 			*retpos += pos;
 			return number_type;
+
 		} else {
 			if ((rv = get_atom(&buffer[pos], token_buf, n)) < 0)
 				return -1;
@@ -134,21 +135,40 @@ int get_token(char *buffer, char *token_buf, int n, int *retpos)
 			return TOKEN_ATOM;
 		}
 
-	} else if (isdigit(buffer[pos])) {
+	} else if (isdigit(buffer[pos])) { /* number */
 		if ((rv = get_number(&buffer[pos], token_buf, n, &number_type)) < 0)
 			return -1;
 		pos += rv;
 		*retpos += pos;
 		return number_type;
 		
-	} else if (buffer[pos] == '\"') {
+	} else if (buffer[pos] == '\"') { /* string */
 		if ((rv = get_string(&buffer[pos], token_buf, n)) < 0)
 			return -1;
 		pos += rv;
 		*retpos += pos;
 		return TOKEN_STRING;
 
-	} else if (buffer[pos] == '.') {
+	} else if (buffer[pos] == '#') { /* truth value */
+		if (buffer[pos+1] == 't') {
+			token_buf[0] = '#';
+			token_buf[1] = 't';
+			token_buf[2] = '\0';
+
+		} else if (buffer[pos+1] == 'f') {
+			token_buf[0] = '#';
+			token_buf[1] = 't';
+			token_buf[2] = '\0';
+		} else {
+			printf("[ERROR] expected 't' or 'f' after '#'\n");
+			return -1;
+		}
+		
+		pos += 2;
+		*retpos += pos;
+		return TOKEN_BOOL;
+
+	} else if (buffer[pos] == '.') { /* floating point or dot token  */
 		if (isdigit(buffer[pos+1])) {
 			if ((rv = get_number(&buffer[pos], token_buf, n, &number_type)) < 0)
 				return -1;
@@ -161,35 +181,35 @@ int get_token(char *buffer, char *token_buf, int n, int *retpos)
 		*retpos += pos;
 		return TOKEN_DOT;
 
-	} else if (buffer[pos] == '(') {
+	} else if (buffer[pos] == '(') { /* left parenthesis */
 		token_buf[0] = '(';
 		token_buf[1] = '\0';
 		pos++;
 		*retpos += pos;
 		return TOKEN_LEFTP;
 	
-	} else if (buffer[pos] == ')') {
+	} else if (buffer[pos] == ')') { /* right parenthesis */
 		token_buf[0] = ')';
 		token_buf[1] = '\0';
 		pos++;
 		*retpos += pos;
 		return TOKEN_RIGHTP;
 	
-	} else if (buffer[pos] == '[') {
+	} else if (buffer[pos] == '[') { /* left bracket */
 		token_buf[0] = '[';
 		token_buf[1] = '\0';
 		pos++;
 		*retpos += pos;
 		return TOKEN_LEFTB;
 	
-	} else if (buffer[pos] == ']') {
+	} else if (buffer[pos] == ']') { /* right bracket */
 		token_buf[0] = ']';
 		token_buf[1] = '\0';
 		pos++;
 		*retpos += pos;
 		return TOKEN_RIGHTB;
 
-	} else {
+	} else { /* name */
 		if ((rv = get_atom(&buffer[pos], token_buf, n)) < 0)
 			return -1;
 		pos += rv;

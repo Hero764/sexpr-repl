@@ -61,10 +61,8 @@ void print_result(char *input)
 				break;
 			}
 			
-			if (get_string(s, repr_buf, 100) < 0) {
-				printf("Error reading sexpr tag\n");
+			if (get_string(s, repr_buf, 100) < 0)
 				break;
-			}
 
 			printf("%s\n", repr_buf);
 			break;
@@ -75,10 +73,9 @@ void print_result(char *input)
 				break;
 			}
 
-			if (get_string(s, repr_buf, 100) < 0) {
-				printf("Error reading sexpr tag\n");
+			if (get_string(s, repr_buf, 100) < 0)
 				break;
-			}
+
 
 			free_sexpr(s);
 

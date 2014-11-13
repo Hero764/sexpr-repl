@@ -9,8 +9,9 @@
 
 /* built-in operator functions */
 #include "arithmetic.h"
+#include "comparison.h"
 
-#define N_OPERATIONS 5
+#define N_OPERATIONS 11
 
 struct operator operators[] = {
 					   /* arithmetic.h */
@@ -18,7 +19,13 @@ struct operator operators[] = {
 					   {.name = "-", .callback = sub_op},
 					   {.name = "*", .callback = mul_op},
 					   {.name = "/", .callback = div_op},
-					   {.name = "%", .callback = mod_op}
+					   {.name = "%", .callback = mod_op},
+					   {.name = ">", .callback = gt_op},
+					   {.name = ">=", .callback = gte_op},
+					   {.name = "<", .callback = lt_op},
+					   {.name = "<=", .callback = lte_op},
+					   {.name = "=", .callback = eq_op},
+					   {.name = "!=", .callback = neq_op}
 };
 
 struct operator *get_op(char *op_name)
@@ -89,5 +96,6 @@ struct sexpr *eval_op(char *input, int *retpos)
 	
 	if (result)
 		*retpos += pos;
+	
 	return result;
 }

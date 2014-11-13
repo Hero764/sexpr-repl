@@ -1,10 +1,13 @@
 CFLAGS = -Wall -g
 
-all: arithmetic.o main.o names.o operators.o sexpr.o tokenizer.o
-	gcc $(CFLAGS) -o sexpr-repl arithmetic.o main.o names.o operators.o sexpr.o tokenizer.o
+all: arithmetic.o comparison.o main.o names.o operators.o sexpr.o tokenizer.o
+	gcc $(CFLAGS) -o sexpr-repl arithmetic.o comparison.o main.o names.o operators.o sexpr.o tokenizer.o
 
 arithmetic.o: arithmetic.c
 	gcc $(CFLAGS) -c arithmetic.c
+
+comparison.o: comparison.c
+	gcc $(CFLAGS) -c comparison.c
 
 main.o: main.c
 	gcc $(CFLAGS) -c main.c

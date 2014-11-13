@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -47,8 +48,10 @@ struct sexpr *resolve_name(char *n)
 			break;
 	}
 
-	if (i == n_names) /* name not found */
+	if (i == n_names) { /* name not found */
+		printf("[ERROR] Could not resolve %s\n", n);
 		return NULL;	
+	}
 
 	result = malloc(sizeof(struct sexpr));
 

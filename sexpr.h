@@ -5,12 +5,14 @@
 #define TAG_FLOAT  2
 #define TAG_NAME   3
 #define TAG_STRING 4
+#define TAG_BOOL   5
 
 union value {
-	long   sexpr_int;
+	long sexpr_int;
 	double sexpr_float;
 	struct name *sexpr_name;
 	char *sexpr_string;
+	int sexpr_bool;
 };
 
 struct sexpr {

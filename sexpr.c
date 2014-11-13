@@ -23,6 +23,10 @@ struct sexpr *new_sexpr(int token_type, char *token_buf)
 		s->val.sexpr_string = malloc(100);
 		strncpy(s->val.sexpr_string, token_buf, 100);
 		break;
+	case TOKEN_BOOL:
+		s->tag = TAG_BOOL;
+		s->val.sexpr_bool = (token_buf[1] == 't');
+		break;
 	}
 
 	return s;
@@ -40,7 +44,14 @@ int get_string(struct sexpr *s, char *buf, int n)
 		case TAG_STRING:
 			strncpy(buf, s->val.sexpr_string, n);
 			break;
+		case TAG_BOOL:
+			if (s->val.sexpr_bool)
+				strncpy(buf, "#t", n);
+			else
+				strncpy(buf, "#f", n);
+			break;
 		default:
+			printf("[ERROR] reading sexpr tag\n");
 			return -1;
 	}
 	
