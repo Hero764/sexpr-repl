@@ -1,25 +1,23 @@
-SEXPR REPL
-==========
+SCHEME INTERPRETER
+==================
 
-A repl(read-eval-print loop) in the domain of sexprs. An sexpr is one of the following:
+An interpreter for a (as of right now) subset of the Scheme dialect of Lisp. 
 
-* integer
-* floating point
-* atom
-* string
 
 Current features
 ----------------
 
--tokenizer -- retrieves one token at a time from an input buffer. a token is one of the following:
+The following sexprs are supported:
 
 * integer
 * floating point
 * atom
 * string
-* left or right parenthesis
-* left or right bracket
-* dot
+* boolean
+
+* *define* names as sexprs
+* *define* names as procedures
+* pass arguments to the procedures
 
 Builtin Operators
 -----------------
@@ -39,8 +37,3 @@ Builtin Operators
 * less than or equal to ('<=')
 * equal to ('=')
 * not equal to ('!=')
-
-*logical*
-* and ('and')
-* or ('or')
-* not ('not')
