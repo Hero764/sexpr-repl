@@ -7,6 +7,8 @@
 #define TAG_STRING 4
 #define TAG_BOOL   5
 
+#define MAX_REPR 100
+
 union value {
 	long sexpr_int;
 	double sexpr_float;

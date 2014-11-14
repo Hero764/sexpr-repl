@@ -41,11 +41,12 @@ struct operator *get_op(char *op_name)
 	return NULL;
 }	
 
-struct sexpr *eval_procedure(char *input, struct procedure *p)
+struct sexpr *eval_procedure(char *input, struct procedure *p, int *retpos)
 {
 	int argc = 0, rv, pos = 0;
-	char args[MAX_ARGS][20], token_buf[20], *procedure_string;
-	
+	char args[MAX_ARGS][20], token_buf[20], string_buffer[100], *procedure_string;
+	struct sexpr *result, *tmp;
+
 	while ((rv = get_token(input + pos, token_buf, 20, &pos)) != TOKEN_RIGHTP) {
 		switch (rv) {
 		case TOKEN_INT:
@@ -55,11 +56,25 @@ struct sexpr *eval_procedure(char *input, struct procedure *p)
 		case TOKEN_BOOL:
 			strncpy(args[argc++], token_buf, 20);
 			break;
+		case TOKEN_LEFTP:
+			if ((rv = get_token(input + pos, token_buf, 20, &pos)) != TOKEN_ATOM) {
+				printf("[ERROR] Expected atom after '('\n");
+				return NULL;
+			}
+
+			tmp = eval_op(input + pos, token_buf, &pos);
+			if (get_string(tmp, string_buffer, 100) < 0)
+				return NULL;
+			strncpy(args[argc++], string_buffer, 20);
+			break;
+
 		default:
 			printf("[ERROR] Unexpected token type in argument list\n");
 			return NULL;
 		}
 	}
+	
+	*retpos += pos;
 
 	procedure_string = get_procedure_string(p, argc, args);
 
@@ -70,10 +85,12 @@ struct sexpr *eval_procedure(char *input, struct procedure *p)
 		return NULL;
 	}
 
-	return eval_op(procedure_string + pos, token_buf);
+	result = eval_op(procedure_string + pos, token_buf, &pos);
+	free(procedure_string);
+	return result;
 }
 
-struct sexpr *eval_op(char *input, char *operation)
+struct sexpr *eval_op(char *input, char *operation, int *retpos)
 {
 	struct operation op;
 	struct procedure *p;
@@ -83,9 +100,12 @@ struct sexpr *eval_op(char *input, char *operation)
 	
 	op.n_operands = 0;
 	
-	if ((p = get_procedure(operation)) != NULL)
-		return eval_procedure(input, p);
-	else if ((op.operator = get_op(operation)) == NULL) {
+	if ((p = get_procedure(operation)) != NULL) {
+		result = eval_procedure(input, p, &pos);
+		*retpos += pos;
+		return result;
+
+	} else if ((op.operator = get_op(operation)) == NULL) {
 		printf("[ERROR] %s not an operator\n", token_buf);
 		return NULL;
 	}
@@ -111,7 +131,7 @@ struct sexpr *eval_op(char *input, char *operation)
 				printf("[ERROR] 'define' not allowed in expression context\n");
 				return NULL;
 		
-			} else if ((operand = eval_op(input+pos, token_buf)) == NULL)
+			} else if ((operand = eval_op(input+pos, token_buf, &pos)) == NULL)
 				return NULL;
 		
 		} else if ((operand = new_sexpr(rv, token_buf)) == NULL) {
@@ -129,6 +149,7 @@ struct sexpr *eval_op(char *input, char *operation)
 	/* free operands */
 	for (i = 0; i < op.n_operands ; i++)
 		free_sexpr(op.operands[i]);
-	
+
+	*retpos += pos;
 	return result;
 }

@@ -5,6 +5,7 @@
 #include "sexpr.h"
 #include "names.h"
 #include "tokenizer.h"
+#include "operators.h"
 
 #define MAX_NAMES 1000
 
@@ -29,6 +30,15 @@ void define_name(char *input, char *n)
 		break;
 	case TOKEN_ATOM:
 		if ((v = resolve_name(token_buf)) == NULL)
+			return;
+		break;
+	case TOKEN_LEFTP:
+		if ((rv = get_token(input + pos, token_buf, 20, &pos)) != TOKEN_ATOM) {
+			printf("[ERROR] Expected atom after '('\n");
+			return;
+		}
+
+		if ((v = eval_op(input + pos, token_buf, &pos)) == NULL) 
 			return;
 		break;
 	default:

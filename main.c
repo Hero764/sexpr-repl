@@ -69,7 +69,7 @@ void print_result(char *input)
 					printf("[ERROR] Expected '(' or atom after 'define'\n");
 				break;
 
-			} else if ((s = eval_op(input + pos, token_buf)) == NULL)
+			} else if ((s = eval_op(input + pos, token_buf, &pos)) == NULL)
 				break;
 
 			if (get_string(s, repr_buf, 100) < 0)

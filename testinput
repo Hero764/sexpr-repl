@@ -1,2 +1,6 @@
 (define (sq x) (* x x))
-(sq 2)
+(define (sum-of-squares x y) (+ (sq x) (sq y)))
+(sum-of-squares 3 4)
+(sum-of-squares 5 5)
+(sum-of-squares 1 2)
+(sum-of-squares 2 2)
