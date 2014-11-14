@@ -1,0 +1,2 @@
+(define (sq x) (* x x))
+(sq 2)

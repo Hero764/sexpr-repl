@@ -10,7 +10,7 @@
 struct procedure procedures[MAX_PROCEDURES];
 static int n_procedures = 0;
 
-static int arg_match(char *str, int argc, char **args) {
+static int arg_match(char *str, int argc, char (*args)[20]) {
 	int i;
 
 	for (i = 0; i < argc; i++) {
@@ -26,7 +26,7 @@ void define_procedure(char *input)
 	char code[MAX_CODESZ], token_buf[20], arg_rep[3];
 	char args[MAX_ARGS][20];
 	int pos = 0, p_state = 1, rv;
-	int argc, argn;
+	int argc = 0, argn;
 
 	/* get proecedure name */
 	if ((rv = get_token(input + pos, token_buf, 20, &pos)) != TOKEN_ATOM) {
@@ -57,7 +57,7 @@ void define_procedure(char *input)
 	}
 
 	code[0] = '\0';
-	
+
 	while (p_state != 0) {
 		rv = get_token(input + pos, token_buf, 20, &pos);
 		if (rv == TOKEN_ATOM) {
@@ -102,7 +102,7 @@ struct procedure *get_procedure(char *n)
 	return NULL;
 }
 
-char *get_procedure_string(struct procedure *p, int argc, char **args)
+char *get_procedure_string(struct procedure *p, int argc, char (*args)[20])
 {
 	char new_str[MAX_CODESZ * 2], *return_string;
 	int argn;
@@ -124,11 +124,13 @@ char *get_procedure_string(struct procedure *p, int argc, char **args)
 			}
 
 			j = 0;
-			while (args[argn][j] != '\0')
+			while (args[argn][j] != '\0') 
 				new_str[k++] = args[argn][j++];
+			
 		
-		} else
-			new_str[k++] = p->procedure_str[i++];
+		} else 
+			new_str[k++] = p->procedure_str[i];
+		
 	}
 
 	new_str[k] = '\0';

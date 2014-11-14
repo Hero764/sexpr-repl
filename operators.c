@@ -70,7 +70,7 @@ struct sexpr *eval_procedure(char *input, struct procedure *p)
 		return NULL;
 	}
 
-	return eval_op(procedure_string, token_buf);
+	return eval_op(procedure_string + pos, token_buf);
 }
 
 struct sexpr *eval_op(char *input, char *operation)
@@ -98,10 +98,8 @@ struct sexpr *eval_op(char *input, char *operation)
 		}	
 		
 		if (rv == TOKEN_ATOM) {
-			if ((operand = resolve_name(token_buf)) == NULL) {
-				printf("[ERROR] Could not resolve: %s\n", token_buf);
+			if ((operand = resolve_name(token_buf)) == NULL) 
 				return NULL;
-			}
 
 		} else if (rv == TOKEN_LEFTP) { /* get operator and recurse */
 			if ((rv = get_token(input+pos, token_buf, 20, &pos)) != TOKEN_ATOM) {

@@ -14,7 +14,7 @@ struct procedure {
 };
 
 struct procedure *get_procedure(char *n);
-char *get_procedure_string(struct procedure *c, int argc, char **args);
+char *get_procedure_string(struct procedure *c, int argc, char (*args)[20]);
 void define_procedure(char *input);
 
 #endif
