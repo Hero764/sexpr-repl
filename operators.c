@@ -6,6 +6,7 @@
 #include "operators.h"
 #include "tokenizer.h"
 #include "names.h"
+#include "procedures.h"
 
 /* built-in operator functions */
 #include "arithmetic.h"
@@ -40,23 +41,51 @@ struct operator *get_op(char *op_name)
 	return NULL;
 }	
 
-struct sexpr *eval_op(char *input, int *retpos)
+struct sexpr *eval_procedure(char *input, struct procedure *p)
+{
+	int argc = 0, rv, pos = 0;
+	char args[MAX_ARGS][20], token_buf[20], *procedure_string;
+	
+	while ((rv = get_token(input + pos, token_buf, 20, &pos)) != TOKEN_RIGHTP) {
+		switch (rv) {
+		case TOKEN_INT:
+		case TOKEN_FLOAT:
+		case TOKEN_STRING:
+		case TOKEN_ATOM:
+		case TOKEN_BOOL:
+			strncpy(args[argc++], token_buf, 20);
+			break;
+		default:
+			printf("[ERROR] Unexpected token type in argument list\n");
+			return NULL;
+		}
+	}
+
+	procedure_string = get_procedure_string(p, argc, args);
+
+	/* get the operator to pass eval_op */
+	pos = 0;
+	if ((rv = get_token(procedure_string, token_buf, 20, &pos)) != TOKEN_ATOM) {
+		printf("[ERROR] Expected atom at beginning of expression.\n");
+		return NULL;
+	}
+
+	return eval_op(procedure_string, token_buf);
+}
+
+struct sexpr *eval_op(char *input, char *operation)
 {
 	struct operation op;
+	struct procedure *p;
 	struct sexpr *operand, *result;
 	char token_buf[20];
 	int i, rv, pos = 0;
 	
 	op.n_operands = 0;
-
-	/* get operator */
-	rv = get_token(input + pos, token_buf, 20, &pos);
-	if (rv != TOKEN_ATOM) {
-		printf("[ERROR] Expected operator after left parenthesis.\n");
-		return NULL;
-	}
-
-	if ((op.operator = get_op(token_buf)) == NULL) {
+	
+	if ((p = get_procedure(operation)) != NULL)
+		return eval_procedure(input, p);
+	else if ((op.operator = get_op(operation)) == NULL) {
 		printf("[ERROR] %s not an operator\n", token_buf);
 		return NULL;
 	}
@@ -74,8 +103,17 @@ struct sexpr *eval_op(char *input, int *retpos)
 				return NULL;
 			}
 
-		} else if (rv == TOKEN_LEFTP) { /* recurse */
-			if ((operand = eval_op(input+pos, &pos)) == NULL)
+		} else if (rv == TOKEN_LEFTP) { /* get operator and recurse */
+			if ((rv = get_token(input+pos, token_buf, 20, &pos)) != TOKEN_ATOM) {
+				printf("[ERROR] Expected atom after left parenthesis\n"); 
+				return NULL;
+			}
+
+			if (strncmp("define", token_buf, 8) == 0) {
+				printf("[ERROR] 'define' not allowed in expression context\n");
+				return NULL;
+		
+			} else if ((operand = eval_op(input+pos, token_buf)) == NULL)
 				return NULL;
 		
 		} else if ((operand = new_sexpr(rv, token_buf)) == NULL) {
@@ -93,9 +131,6 @@ struct sexpr *eval_op(char *input, int *retpos)
 	/* free operands */
 	for (i = 0; i < op.n_operands ; i++)
 		free_sexpr(op.operands[i]);
-	
-	if (result)
-		*retpos += pos;
 	
 	return result;
 }

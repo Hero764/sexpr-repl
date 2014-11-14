@@ -5,6 +5,7 @@
 #include "operators.h"
 #include "tokenizer.h"
 #include "names.h"
+#include "procedures.h"
 
 int count_parenthesis(char *line, int p_state)
 {
@@ -23,22 +24,6 @@ int count_parenthesis(char *line, int p_state)
 	return p_state;
 }
 
-void skip_op(char *op, int *retpos)
-{
-	int i = 0;
-	int p_state = 1;
-
-	while (p_state > 0) {
-		if (op[i] == ')')
-			p_state--;
-		else if (op[i] == '(')
-			p_state++;
-		i++;
-	}
-
-	*retpos += i;
-}
-
 void print_result(char *input) 
 {
 	struct sexpr *s;
@@ -47,8 +32,10 @@ void print_result(char *input)
 
 	pos = 0;
 
-	while ((rv = get_token(input + pos, token_buf, 100, &pos)) > 0) {
-		switch (rv) {
+	if ((rv = get_token(input + pos, token_buf, 100, &pos)) < 0)
+		return;
+
+	switch (rv) {
 		case TOKEN_INT:
 		case TOKEN_FLOAT:
 		case TOKEN_STRING:
@@ -60,7 +47,7 @@ void print_result(char *input)
 				printf("Error resolving name: %s\n", token_buf);
 				break;
 			}
-			
+
 			if (get_string(s, repr_buf, 100) < 0)
 				break;
 
@@ -68,14 +55,25 @@ void print_result(char *input)
 			break;
 
 		case TOKEN_LEFTP:
-			if ((s = eval_op(input + pos, &pos)) == NULL) {
-				skip_op(input + pos, &pos);
+			if ((rv = get_token(input + pos, token_buf, 100, &pos)) != TOKEN_ATOM) {
+				printf("[ERROR] Expected atom after left parenthesis\n");
 				break;
 			}
 
-			if (get_string(s, repr_buf, 100) < 0)
+			if (strncmp("define", token_buf, 8) == 0) {
+				if ((rv = get_token(input + pos, token_buf, 100, &pos)) == TOKEN_LEFTP)
+					define_procedure(input + pos);
+				else if (rv == TOKEN_ATOM)
+					define_name(input + pos, token_buf);
+				else 
+					printf("[ERROR] Expected '(' or atom after 'define'\n");
 				break;
 
+			} else if ((s = eval_op(input + pos, token_buf)) == NULL)
+				break;
+
+			if (get_string(s, repr_buf, 100) < 0)
+				break;
 
 			free_sexpr(s);
 
@@ -84,7 +82,6 @@ void print_result(char *input)
 
 		default:
 			printf("Unspecified error.\n");
-		}
 	}
 }
 
@@ -92,7 +89,7 @@ int main(int argc, char **argv)
 {
 	char line[1024], input[8096];
 	int p_state = 0;
-	
+
 	printf("Welcome to Hero's REPL v 0.1\n");
 	printf(">> ");
 

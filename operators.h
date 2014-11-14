@@ -14,6 +14,6 @@ struct operation {
 	struct sexpr *operands[MAX_OPERANDS];
 };
 
-struct sexpr *eval_op(char *input, int *pos);
+struct sexpr *eval_op(char *input, char *operator);
 
 #endif

@@ -81,7 +81,8 @@ static int get_string(char *bufp, char *token_buf, int n)
 {
 	int len = 0;
 
-	bufp++; //skip initial '"'
+	*token_buf++ = *bufp++; //copy intial initial '"'
+	len++;
 
 	while (*bufp != '\"') {
 		if (*bufp == '\0') {
@@ -98,9 +99,8 @@ static int get_string(char *bufp, char *token_buf, int n)
 		*token_buf++ = *bufp++;
 	}
 
-	bufp++; //skip terminating '"'
-
-	len += 2; // for the two '"'s
+	*token_buf++ = *bufp++; //copy terminating '"'
+	len ++; // for the two '"'s
 
 	*token_buf = '\0';
 	return len;
